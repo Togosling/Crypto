@@ -28,19 +28,6 @@ class CoinService {
             })
     }
     
-    func getCoinImage(urlString: String, completion: @escaping (UIImage?) -> ()) {
-        guard let url = URL(string: urlString) else { return }
-        
-        coinImageSubscription = dowload(url: url)
-            .tryMap({ data in
-                return UIImage(data: data)
-            })
-            .sink(receiveCompletion: handleCompletion(completion:), receiveValue: { [weak self] coinImage in
-                completion(coinImage)
-                self?.coinImageSubscription?.cancel()
-            })
-    }
-    
     func dowload(url: URL) -> AnyPublisher<Data,Error> {
         return URLSession.shared.dataTaskPublisher(for: url)
             .tryMap { data, response in

@@ -20,6 +20,8 @@ struct HomeView: View {
                 
                 headerView
                 
+                SearchBarView(searchText: $homeViewModel.searchText)
+                
                 columnTitles
                 
                 coinsList
