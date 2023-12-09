@@ -9,22 +9,37 @@ import SwiftUI
 import Combine
 
 class CoinService {
-    
-    static let shared = CoinService()
+        
+    @Published var allCoins: [CoinModel] = []
+    @Published var marketData: MarketDataModel?
     
     var coinSubscription: AnyCancellable?
+    var marketDataSubscription: AnyCancellable?
     
-    var coinImageSubscription: AnyCancellable?
+    init() {
+        getCoins()
+        getMarketData()
+    }
 
-    func getCoins(completion: @escaping ([CoinModel]) -> ()) {
-        
+    func getCoins() {
         guard let url = URL(string: "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=true&price_change_percentage=24h") else { return }
         
         coinSubscription = dowload(url: url)
             .decode(type: [CoinModel].self, decoder: JSONDecoder())
             .sink(receiveCompletion: handleCompletion(completion:), receiveValue: { [weak self] allCoins in
-                completion(allCoins)
+                self?.allCoins = allCoins
                 self?.coinSubscription?.cancel()
+            })
+    }
+    
+    func getMarketData() {
+        guard let url = URL(string: "https://api.coingecko.com/api/v3/global") else { return }
+        
+        marketDataSubscription = dowload(url: url)
+            .decode(type: GlobalData.self, decoder: JSONDecoder())
+            .sink(receiveCompletion: handleCompletion(completion:), receiveValue: { [weak self] globalData in
+                self?.marketData = globalData.data
+                self?.marketDataSubscription?.cancel()
             })
     }
     

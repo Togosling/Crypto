@@ -11,14 +11,22 @@ struct HomeView: View {
     
     @EnvironmentObject private var homeViewModel: HomeViewModel
     @State var showPortfolio: Bool = false
+    @State var showPortfolioView: Bool = false
     
     var body: some View {
         ZStack {
             Color.background
+                .ignoresSafeArea()
+                .sheet(isPresented: $showPortfolioView) {
+                    PortfolioView()
+                        .environmentObject(homeViewModel)
+                }
             
             VStack {
                 
                 headerView
+                
+                HomeStatisticsView(showPortfolio: $showPortfolio)
                 
                 SearchBarView(searchText: $homeViewModel.searchText)
                 
@@ -39,6 +47,11 @@ extension HomeView {
             CircleButtonView(iconName: showPortfolio ? "plus" : "info")
                 .transaction { transaction in
                     transaction.animation = nil
+                }
+                .onTapGesture {
+                    if showPortfolio {
+                        showPortfolioView.toggle()
+                    }
                 }
                 .background(
                     CircleButtonAnimationView(animate: $showPortfolio)
