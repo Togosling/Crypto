@@ -38,11 +38,17 @@ struct PortfolioView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: {
                         saveInput()
+                        removeSelectedCoin()
                     }, label: {
                         Text("SAVE")
                             .bold()
                     })
                     .opacity(quantityText.isEmpty ? 0.0 : 1.0)
+                }
+            })
+            .onChange(of: homeViewModel.searchText, { oldValue, newValue in
+                if newValue == "" {
+                    removeSelectedCoin()
                 }
             })
         }
@@ -54,12 +60,19 @@ extension PortfolioView {
     private var coinLogoList: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 10) {
-                ForEach(homeViewModel.allCoins) { coin in
+                ForEach(homeViewModel.searchText.isEmpty ? homeViewModel.portfolioCoins : homeViewModel.allCoins) { coin in
                     CoinIconView(coin: coin)
                         .frame(width: 75)
                         .padding(4)
                         .onTapGesture {
                             selectedCoin = coin
+                            
+                            if let portfolioCoin = homeViewModel.portfolioCoins.first(where: { $0.id == coin.id}),
+                               let amount = portfolioCoin.currentHoldings {
+                                quantityText = "\(amount)"
+                            } else {
+                                quantityText = ""
+                            }
                         }
                         .background(
                             RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -110,7 +123,15 @@ extension PortfolioView {
     }
     
     private func saveInput() {
+        guard let coin = selectedCoin, let amount = Double(quantityText) else { return }
+        
+        homeViewModel.updatePortfolio(coin: coin, amount: amount)
+        
         UIApplication.shared.endEditing()
         quantityText = ""
+    }
+    
+    private func removeSelectedCoin() {
+        selectedCoin = nil
     }
 }
