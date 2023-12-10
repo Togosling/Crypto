@@ -43,7 +43,7 @@ class CoinService {
             })
     }
     
-    func dowload(url: URL) -> AnyPublisher<Data,Error> {
+    private func dowload(url: URL) -> AnyPublisher<Data,Error> {
         return URLSession.shared.dataTaskPublisher(for: url)
             .tryMap { data, response in
                 guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
@@ -56,7 +56,7 @@ class CoinService {
             .eraseToAnyPublisher()
     }
     
-    func handleCompletion(completion: Subscribers.Completion<Error>) {
+    private func handleCompletion(completion: Subscribers.Completion<Error>) {
         switch completion {
         case .finished:
             print("Finished fetching transactions")
