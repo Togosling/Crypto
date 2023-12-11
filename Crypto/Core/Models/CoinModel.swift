@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct CoinModel: Identifiable, Codable {
+struct CoinModel: Identifiable, Codable, Hashable {
     let id, symbol, name: String
     let image: String
     let currentPrice: Double
@@ -68,6 +68,19 @@ struct CoinModel: Identifiable, Codable {
         return Int(marketCapRank ?? 0)
     }
     
+    func hash(into hasher: inout Hasher) {
+        // Choose properties that uniquely identify a coin for hashing
+        hasher.combine(id)
+        hasher.combine(symbol)
+        // Add more properties as needed
+    }
+
+    // Optional: You can also override the equality operator (==) for further customization
+    static func == (lhs: CoinModel, rhs: CoinModel) -> Bool {
+        // Compare properties for equality
+        return lhs.id == rhs.id && lhs.symbol == rhs.symbol
+        // Add more comparisons as needed
+    }
 }
 
 struct SparklineIn7D: Codable {

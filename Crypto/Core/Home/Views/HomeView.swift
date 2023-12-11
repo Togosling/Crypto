@@ -84,8 +84,17 @@ extension HomeView {
             ForEach(showPortfolio ? homeViewModel.portfolioCoins : homeViewModel.allCoins) { coin in
                 CoinRowView(coin: coin, showHoldings: showPortfolio)
                     .listRowInsets(.init(top: 10, leading: 0, bottom: 10, trailing: 10))
+                    .background(
+                        NavigationLink(value: coin, label: {
+                            EmptyView()
+                        })
+                        .opacity(0)
+                    )
             }
         }
+        .navigationDestination(for: CoinModel.self, destination: { coin in
+            CoinDetailView(coin: coin)
+        })
         .listStyle(.plain)
         .transition(.move(edge: showPortfolio ? .trailing : .leading))
         .scrollIndicators(.hidden)
