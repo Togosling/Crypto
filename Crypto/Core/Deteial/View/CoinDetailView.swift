@@ -10,6 +10,7 @@ import SwiftUI
 struct CoinDetailView: View {
     
     @StateObject private var coinDetailViewModel: CoinDetailViewModel
+    @State private var showDescription: Bool = false
     
     private var columns = [GridItem(.flexible()), GridItem(.flexible())]
     
@@ -30,6 +31,24 @@ struct CoinDetailView: View {
                         .foregroundStyle(Color.accent)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Divider()
+                    
+                    VStack(alignment: .leading) {
+                        if let description = coinDetailViewModel.description {
+                            Text(description)
+                                .lineLimit(showDescription ? nil : 3)
+                                .font(.callout)
+                                .foregroundStyle(Color.secondaryText)
+                    
+                            Button(showDescription ? "Less" : "See more ...") {
+                                withAnimation(.easeOut) {
+                                    showDescription.toggle()
+                                }
+                            }
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .padding(.vertical, 4)
+                        }
+                    }
                     
                     LazyVGrid(columns: columns,
                               alignment: .leading,
@@ -53,6 +72,24 @@ struct CoinDetailView: View {
                               pinnedViews: []) {
                         ForEach(coinDetailViewModel.additionalStatistics) { stat in
                             StatiscticView(statistic: stat)
+                        }
+                    }
+                    
+                    HStack {
+                        if let website = coinDetailViewModel.website, let url = URL(string: website) {
+                            Link(destination: url, label: {
+                                Text("Website")
+                                    .font(.headline)
+                            })
+                        }
+                        
+                        Spacer()
+                        
+                        if let reddit = coinDetailViewModel.reddit, let url = URL(string: reddit)  {
+                            Link(destination: url, label: {
+                                Text("Reddit")
+                                    .font(.headline)
+                            })
                         }
                     }
                 }
